@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Initial Super Admin Setup — BRGYWEBSAAS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <main class="shell">
+    <form id="setup-form" class="card" autocomplete="on">
+      <p class="eyebrow">BRGYWEBSAAS</p>
+      <h1>Initial Super Admin Setup</h1>
+      <p class="muted">Create the single system Super Admin account. This setup is available only while no Super Admin exists.</p>
+
+      <label>Full name
+        <input id="full-name" type="text" required maxlength="120" autocomplete="name">
+      </label>
+      <label>Email
+        <input id="email" type="email" required autocomplete="username">
+      </label>
+      <label>Password
+        <input id="password" type="password" required minlength="8" autocomplete="new-password">
+      </label>
+      <label>Confirm password
+        <input id="confirm-password" type="password" required minlength="8" autocomplete="new-password">
+      </label>
+
+      <button id="setup-button" type="submit">Create Super Admin</button>
+      <p id="setup-status" class="status" aria-live="polite"></p>
+      <p class="muted small mb-0">After the first Super Admin is created, this page cannot create another one.</p>
+    </form>
+  </main>
+  <script type="module" src="js/theme.js"></script>
+  <script type="module" src="js/superadmin-setup.js"></script>
+</body>
+</html>
