@@ -20,7 +20,7 @@ async function request(path, options = {}, accessToken = null) {
     }
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.msg || data.error_description || data.message || 'Request failed.');
+  if (!response.ok) throw new Error(data.msg || data.error_description || data.message || data.hint || 'Request failed.');
   return data;
 }
 
@@ -42,12 +42,11 @@ async function bootstrapProfile(accessToken, userId, fullName) {
 }
 
 async function isAlreadyConfigured() {
-  const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/profiles?role=eq.super_admin&select=id&limit=1`, {
-    headers: { apikey: SUPABASE_CONFIG.publishableKey }
+  const data = await request('/rest/v1/rpc/super_admin_setup_available', {
+    method: 'POST',
+    body: '{}'
   });
-  if (!response.ok) throw new Error('Unable to check Super Admin setup status.');
-  const rows = await response.json();
-  return rows.length > 0;
+  return data === false;
 }
 
 async function signIn(email, password) {
@@ -91,7 +90,6 @@ form.addEventListener('submit', async (event) => {
         body: JSON.stringify({ email, password, data: { full_name: fullName } })
       });
     } catch (signupError) {
-      // If the Auth user already exists but has just been verified, sign in and finish bootstrap.
       if (/already registered|already exists|user already/i.test(signupError.message)) {
         show('Account exists. Signing in to finish Super Admin setup…');
         authData = await signIn(email, password);
