@@ -6,6 +6,7 @@ let barangays=[],admins=[],selected=null;
 function ok(){return session?.access_token&&session?.profile&&String(session.profile.role).toLowerCase()==='super_admin'&&session.profile.approval_status==='approved'}
 if(!ok()){sessionStorage.removeItem('brgywebsaas_session');location.replace('index.html');throw Error('unauthorized')}
 $('#welcome').textContent=`Signed in as ${session.profile.full_name||session.user?.email||'Super Admin'}`;
+$('#add-admin-slot')?.remove();
 function msg(el,text,error=false){if(!el)return;el.textContent=text;el.dataset.state=error?'error':'ok';el.hidden=false}
 async function api(path,options={}){const {headers:extraHeaders,...rest}=options;const r=await fetch(`${SUPABASE_CONFIG.url}${path}`,{...rest,headers:headers(extraHeaders||{})});if(!r.ok){let d={};try{d=await r.json()}catch{}throw Error(d.message||d.error||`Request failed (${r.status})`)}return r.status===204?null:r.json().catch(()=>null)}
 function slugify(value){return String(value||'').trim().toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').replace(/-{2,}/g,'-')}
