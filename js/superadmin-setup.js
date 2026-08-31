@@ -9,12 +9,13 @@ function show(message, error = false) {
   status.dataset.state = error ? 'error' : 'ok';
 }
 
-async function request(path, options = {}) {
+async function request(path, options = {}, accessToken = null) {
   const response = await fetch(`${SUPABASE_CONFIG.url}${path}`, {
     ...options,
     headers: {
       apikey: SUPABASE_CONFIG.publishableKey,
       'Content-Type': 'application/json',
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       ...(options.headers || {})
     }
   });
@@ -49,6 +50,13 @@ async function isAlreadyConfigured() {
   return rows.length > 0;
 }
 
+async function signIn(email, password) {
+  return request('/auth/v1/token?grant_type=password', {
+    method: 'POST',
+    body: JSON.stringify({ email, password })
+  });
+}
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.publishableKey) {
@@ -76,26 +84,36 @@ form.addEventListener('submit', async (event) => {
     }
 
     show('Creating your account…');
-    const signup = await request('/auth/v1/signup', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, data: { full_name: fullName } })
-    });
+    let authData;
+    try {
+      authData = await request('/auth/v1/signup', {
+        method: 'POST',
+        body: JSON.stringify({ email, password, data: { full_name: fullName } })
+      });
+    } catch (signupError) {
+      // If the Auth user already exists but has just been verified, sign in and finish bootstrap.
+      if (/already registered|already exists|user already/i.test(signupError.message)) {
+        show('Account exists. Signing in to finish Super Admin setup…');
+        authData = await signIn(email, password);
+      } else {
+        throw signupError;
+      }
+    }
 
-    let accessToken = signup.access_token;
-    let user = signup.user;
-
-    if (!accessToken) {
-      show('Account created. Check your email, confirm the address, then return here and submit the same credentials to finish setup.');
+    if (!authData.access_token) {
+      show('Account created. Check your email, confirm the address, then submit this form again to finish setup.');
       return;
     }
 
-    if (!user) user = signup.user;
+    const user = authData.user;
+    if (!user?.id) throw new Error('Supabase did not return a user ID.');
+
     show('Creating Super Admin profile…');
-    await bootstrapProfile(accessToken, user.id, fullName);
+    await bootstrapProfile(authData.access_token, user.id, fullName);
 
     sessionStorage.setItem('brgywebsaas_session', JSON.stringify({
-      access_token: accessToken,
-      refresh_token: signup.refresh_token,
+      access_token: authData.access_token,
+      refresh_token: authData.refresh_token,
       user,
       profile: { id: user.id, full_name: fullName, role: 'super_admin', barangay_id: null }
     }));
@@ -104,7 +122,7 @@ form.addEventListener('submit', async (event) => {
     window.location.href = 'superadmin.html';
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Setup failed.';
-    if (/already|duplicate|unique/i.test(message)) {
+    if (/already|duplicate|unique|configured/i.test(message)) {
       show('Super Admin setup is already completed. A second Super Admin is not allowed.', true);
     } else {
       show(message, true);
