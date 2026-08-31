@@ -20,9 +20,7 @@ function show(message, error = false) {
 async function loadBarangay() {
   if (!slug) {
     title.textContent = 'Barangay Admin Sign in';
-    subtitle.textContent = 'Select a barangay-specific admin login link. This page cannot sign in without a barangay assignment.';
-    formWrap.hidden = true;
-    show('Missing barangay login link. Open Admin Login from the Super Admin Barangays page.', true);
+    subtitle.textContent = 'Barangay Admin accounts must use their assigned barangay login link. The authorized Super Admin account may also sign in here.';
     return;
   }
 
@@ -34,19 +32,18 @@ async function loadBarangay() {
     if (!response.ok) throw new Error('Unable to load barangay.');
 
     const rows = await response.json();
-    targetBarangay = rows[0];
+    targetBarangay = rows[0] || null;
     if (!targetBarangay) {
       title.textContent = 'Barangay unavailable';
-      subtitle.textContent = 'This barangay login is inactive or does not exist.';
-      formWrap.hidden = true;
+      subtitle.textContent = 'This barangay login is inactive or does not exist. The authorized Super Admin may still use this login page.';
+      if (signup) signup.hidden = true;
       return;
     }
 
     title.textContent = `${targetBarangay.name} — Barangay Admin Sign in`;
-    subtitle.textContent = `Authorized Barangay Admin accounts for ${targetBarangay.name}. Super Admin may also sign in here and will be sent to the Super Admin dashboard.`;
+    subtitle.textContent = `Authorized Barangay Admin accounts for ${targetBarangay.name}. The authorized Super Admin account may also sign in here and will be sent to the Super Admin dashboard.`;
     if (signup) signup.href = `barangay-signup.html?barangay=${encodeURIComponent(targetBarangay.slug)}`;
   } catch (error) {
-    formWrap.hidden = true;
     show(error instanceof Error ? error.message : 'Unable to load barangay.', true);
   }
 }
@@ -56,10 +53,6 @@ form.addEventListener('submit', async (event) => {
   const email = document.querySelector('#email').value.trim();
   const password = document.querySelector('#password').value;
 
-  if (!targetBarangay) {
-    show('Barangay assignment is required before login.', true);
-    return;
-  }
   if (!email || !password) {
     show('Enter your email and password.', true);
     return;
@@ -76,12 +69,16 @@ form.addEventListener('submit', async (event) => {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error_description || data.msg || 'Invalid credentials.');
+    if (!data.user?.id || !data.access_token) throw new Error('Authentication response is incomplete.');
 
     const profileResponse = await fetch(
       `${SUPABASE_CONFIG.url}/rest/v1/profiles?id=eq.${encodeURIComponent(data.user.id)}&select=id,full_name,email,role,barangay_id,approval_status&limit=1`,
       { headers: { apikey: SUPABASE_CONFIG.publishableKey, Authorization: `Bearer ${data.access_token}` } }
     );
-    if (!profileResponse.ok) throw new Error('Unable to verify your profile.');
+    if (!profileResponse.ok) {
+      const details = await profileResponse.text().catch(() => '');
+      throw new Error(details || 'Unable to verify your profile.');
+    }
 
     const profiles = await profileResponse.json();
     const profile = profiles[0];
@@ -89,9 +86,9 @@ form.addEventListener('submit', async (event) => {
 
     const role = String(profile.role || '').toLowerCase();
 
-    // The single Super Admin is global: a Super Admin may enter from any
-    // barangay admin login URL and is routed to the Super Admin dashboard.
+    // Super Admin is global and is never constrained by the barangay URL.
     if (role === 'super_admin') {
+      if (profile.barangay_id !== null) throw new Error('Super Admin profile has an invalid barangay assignment.');
       if (profile.approval_status !== 'approved') throw new Error('Your Super Admin account is not approved.');
 
       sessionStorage.setItem('brgywebsaas_session', JSON.stringify({
@@ -107,6 +104,7 @@ form.addEventListener('submit', async (event) => {
     }
 
     if (role !== 'barangay_admin') throw new Error('This login is for Barangay Admin accounts only.');
+    if (!targetBarangay) throw new Error('Open the Barangay Admin login link for your assigned barangay.');
     if (profile.barangay_id !== targetBarangay.id) throw new Error(`This account is not assigned to ${targetBarangay.name}.`);
     if (profile.approval_status !== 'approved') {
       if (profile.approval_status === 'rejected') throw new Error('Your account was rejected by the Super Admin.');
