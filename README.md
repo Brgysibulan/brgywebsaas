@@ -2,19 +2,34 @@
 
 Multi-tenant Barangay Website and Digital Services Platform.
 
-## Foundation
+## Current architecture
+- Static HTML/CSS/JavaScript frontend
+- Bootstrap 5 + custom CSS variables + Design Studio/theme engine
+- GitHub Pages deployment
+- Supabase Auth, PostgreSQL, REST API, and Row Level Security
+- No Next.js runtime
+- No Railway dependency
+- Current target architecture is usable without paid hosting
 
-The project uses Next.js and Supabase. The Super Admin foundation includes Barangay Management with add, edit, and activate/deactivate flows. The database is designed around `barangay_id` tenant isolation and PostgreSQL Row Level Security.
+## Roles and dashboards
+- **Super Admin:** system-wide dashboard, barangay management, system settings, and system-level Design Studio.
+- **Barangay Admin:** dedicated dashboard for the admin's assigned barangay only.
+- **Barangay users/staff:** future role-scoped access to approved modules.
 
-## Development
+Tenant isolation must be enforced in Supabase using `barangay_id` and Row Level Security. Frontend filtering is never the security boundary.
 
-```bash
-npm install
-npm run dev
-```
+## Design direction
+Design customization is an **authenticated admin feature**. The Super Admin Design Studio belongs inside the Super Admin dashboard/settings area. It should not be exposed as a public landing-page control.
 
-Open `http://localhost:3000`.
+The Design Studio roadmap includes presets, custom colors, typography, navigation, header/footer, cards, buttons, tables, inputs, layout, spacing, density, radius, shadows, live preview, save/duplicate/reset, and import/export. Barangay-specific branding will be supported after the tenant/role model is finalized.
 
-## Current milestone
+## Development tracking
+See **GitHub Issue #1 — Project Roadmap, Fix Log & Next Targets** as the source of truth for completed work, errors, fixes, decisions, verification items, and roadmap phases.
 
-Super Admin → Barangay Management → Add/Edit/Activate/Deactivate Barangay.
+## Roadmap summary
+1. Foundation + live authentication verification
+2. Super Admin dashboard
+3. Full Design Studio
+4. Barangay Admin dashboard scoped to assigned barangay
+5. Residents, households, officials, documents, requests, announcements, reports
+6. Security/RLS, audit trail, accessibility, mobile/tablet QA
