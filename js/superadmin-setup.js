@@ -42,7 +42,7 @@ async function bootstrapProfile(accessToken, userId, fullName) {
 }
 
 async function isAlreadyConfigured() {
-  const data = await request('/rest/v1/rpc/super_admin_setup_available', {
+  const data = await request('/rest/v1/rpc/super_admin_setup_status', {
     method: 'POST',
     body: '{}'
   });
