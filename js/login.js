@@ -43,7 +43,7 @@ async function loadBarangay() {
     }
 
     title.textContent = `${targetBarangay.name} — Barangay Admin Sign in`;
-    subtitle.textContent = `Authorized Barangay Admin accounts for ${targetBarangay.name} only.`;
+    subtitle.textContent = `Authorized Barangay Admin accounts for ${targetBarangay.name}. Super Admin may also sign in here and will be sent to the Super Admin dashboard.`;
     if (signup) signup.href = `barangay-signup.html?barangay=${encodeURIComponent(targetBarangay.slug)}`;
   } catch (error) {
     formWrap.hidden = true;
@@ -88,6 +88,24 @@ form.addEventListener('submit', async (event) => {
     if (!profile) throw new Error('No admin profile is assigned to this account.');
 
     const role = String(profile.role || '').toLowerCase();
+
+    // The single Super Admin is global: a Super Admin may enter from any
+    // barangay admin login URL and is routed to the Super Admin dashboard.
+    if (role === 'super_admin') {
+      if (profile.approval_status !== 'approved') throw new Error('Your Super Admin account is not approved.');
+
+      sessionStorage.setItem('brgywebsaas_session', JSON.stringify({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        user: data.user,
+        profile
+      }));
+
+      show('Super Admin verified. Opening Super Admin dashboard…');
+      location.href = 'superadmin.html';
+      return;
+    }
+
     if (role !== 'barangay_admin') throw new Error('This login is for Barangay Admin accounts only.');
     if (profile.barangay_id !== targetBarangay.id) throw new Error(`This account is not assigned to ${targetBarangay.name}.`);
     if (profile.approval_status !== 'approved') {
