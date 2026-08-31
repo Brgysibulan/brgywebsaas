@@ -34,7 +34,7 @@ form.addEventListener('submit', async (event) => {
     if (!profileResponse.ok) throw new Error('Unable to verify your profile.');
     const profiles = await profileResponse.json();
     const profile = profiles[0];
-    if (!profile || !['super_admin', 'superadmin'].includes(String(profile.role).toLowerCase())) {
+    if (!profile || String(profile.role).toLowerCase() !== 'super_admin') {
       show('Access denied: Super Admin role required.', true);
       return;
     }
