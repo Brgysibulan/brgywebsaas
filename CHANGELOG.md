@@ -24,6 +24,14 @@ All meaningful project changes are recorded here.
 - Database stores verification file paths/references rather than image binaries.
 - Storage efficiency must never compromise system stability or verification-image readability.
 
+## 2026-08-31 — Design change isolation rule
+- UI/design work must be isolated from business logic and data-layer behavior.
+- Design-only changes must not modify Supabase queries, CRUD operations, authentication/authorization, admin-slot rules, approval logic, storage rules, or existing event handlers unless the user explicitly requests a functional change.
+- Existing verified functionality is treated as a protected baseline before visual changes are committed.
+- Before declaring a design change complete, verify that existing navigation handlers, CRUD actions, authentication, admin management, and Supabase data operations remain intact.
+- Prefer dedicated CSS/theme/configuration layers for visual changes instead of rewriting working application logic.
+- Do not hide broken/nonfunctional features with CSS or JavaScript and call them fixed; remove them from navigation or implement their real function first.
+
 ## Known / next work
 - Barangay Admin Design Studio currently exists but its saved settings are not yet fully applied to the actual public page, Barangay Admin dashboard, and Barangay Admin login page.
 - Super Admin Design Studio currently exists but its saved settings are not yet fully applied to the actual Super Admin dashboard and Super Admin login page.
