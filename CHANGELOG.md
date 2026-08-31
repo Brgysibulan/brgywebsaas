@@ -32,6 +32,13 @@ All meaningful project changes are recorded here.
 - Prefer dedicated CSS/theme/configuration layers for visual changes instead of rewriting working application logic.
 - Do not hide broken/nonfunctional features with CSS or JavaScript and call them fixed; remove them from navigation or implement their real function first.
 
+## 2026-08-31 — Manage Admin routing fix
+- The Barangay Management `Manage Admin` action now opens the dedicated Admin section instead of relying on the generic Barangay navigation state.
+- Management selection prefers the existing `barangay_id` already rendered on the Barangay action controls, with a brief fallback by name while asynchronous selectors finish loading.
+- The Admin selector dispatches its existing change event so the normal admin-loading logic remains the single source of truth.
+- The Manage Admin bridge retries briefly when the Admin selector is still being populated instead of failing silently.
+- Browser cache-busting was updated for the Manage Admin bridge.
+
 ## Known / next work
 - Barangay Admin Design Studio currently exists but its saved settings are not yet fully applied to the actual public page, Barangay Admin dashboard, and Barangay Admin login page.
 - Super Admin Design Studio currently exists but its saved settings are not yet fully applied to the actual Super Admin dashboard and Super Admin login page.
