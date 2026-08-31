@@ -4,8 +4,6 @@ const session = JSON.parse(sessionStorage.getItem('brgywebsaas_session') || 'nul
 const isSuperAdmin = session?.access_token && String(session?.profile?.role || '').toLowerCase() === 'super_admin' && session?.profile?.approval_status === 'approved';
 if (!isSuperAdmin) throw new Error('Unauthorized');
 
-const esc = value => String(value ?? '').replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
-
 function addDeleteButtons() {
   document.querySelectorAll('#slot-list .admin-slot').forEach(slot => {
     const edit = slot.querySelector('[data-edit-admin]');
@@ -24,7 +22,10 @@ async function deleteAdmin(id, button) {
   if (!id) return;
   const slot = button.closest('.admin-slot');
   const name = slot?.querySelector('.mt-2 strong')?.textContent?.trim() || 'this admin';
-  if (!confirm(`Delete ${name}? This permanently removes the Barangay Admin account and its verification files. This cannot be undone.`)) return;
+
+  // Keep confirmation short and mobile-friendly.
+  if (!window.confirm(`Delete ${name}?`)) return;
+
   button.disabled = true;
   button.textContent = 'Deleting…';
   try {
@@ -37,9 +38,21 @@ async function deleteAdmin(id, button) {
       },
       body: JSON.stringify({ target_admin_id: id })
     });
+
     const data = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(data?.message || data?.error || 'Unable to delete admin account.');
-    location.reload();
+    if (!response.ok) throw new Error(data?.message || data?.error || data?.hint || 'Unable to delete admin account.');
+
+    // Remove the card immediately so the UI confirms the successful delete.
+    slot?.remove();
+    const status = document.querySelector('#admin-status');
+    if (status) {
+      status.hidden = false;
+      status.dataset.state = 'ok';
+      status.textContent = `${name} deleted.`;
+    }
+
+    // Refresh data without a full page reload.
+    document.querySelector('#admin-manager-barangay')?.dispatchEvent(new Event('change'));
   } catch (error) {
     button.disabled = false;
     button.textContent = 'Delete';
