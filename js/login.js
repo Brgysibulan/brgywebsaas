@@ -2,10 +2,19 @@ import { SUPABASE_CONFIG } from './config.js';
 
 const form = document.querySelector('#login-form');
 const status = document.querySelector('#login-status');
+const button = document.querySelector('#login-button');
 
 function show(message, error = false) {
+  status.hidden = false;
   status.textContent = message;
   status.dataset.state = error ? 'error' : 'ok';
+}
+
+function redirectForRole(role) {
+  const normalized = String(role || '').toLowerCase();
+  if (normalized === 'super_admin') return 'superadmin.html';
+  if (normalized === 'barangay_admin') return 'admin.html';
+  throw new Error('Access denied: this account is not an authorized admin.');
 }
 
 form.addEventListener('submit', async (event) => {
@@ -17,6 +26,8 @@ form.addEventListener('submit', async (event) => {
 
   const email = document.querySelector('#email').value.trim();
   const password = document.querySelector('#password').value;
+  if (!email || !password) { show('Enter your email and password.', true); return; }
+  button.disabled = true;
   show('Signing in…');
 
   try {
@@ -34,14 +45,14 @@ form.addEventListener('submit', async (event) => {
     if (!profileResponse.ok) throw new Error('Unable to verify your profile.');
     const profiles = await profileResponse.json();
     const profile = profiles[0];
-    if (!profile || String(profile.role).toLowerCase() !== 'super_admin') {
-      show('Access denied: Super Admin role required.', true);
-      return;
-    }
+    if (!profile) throw new Error('No admin profile is assigned to this account.');
 
+    const destination = redirectForRole(profile.role);
     sessionStorage.setItem('brgywebsaas_session', JSON.stringify({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user, profile }));
-    window.location.href = 'superadmin.html';
+    show('Signed in. Opening your dashboard…');
+    window.location.href = destination;
   } catch (error) {
     show(error instanceof Error ? error.message : 'Sign in failed.', true);
+    button.disabled = false;
   }
 });
