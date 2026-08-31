@@ -18,16 +18,27 @@ function addDeleteButtons() {
   });
 }
 
+function setStatus(text, error = false) {
+  const status = document.querySelector('#admin-status');
+  if (!status) return;
+  status.hidden = false;
+  status.dataset.state = error ? 'error' : 'ok';
+  status.textContent = text;
+}
+
 async function deleteAdmin(id, button) {
   if (!id) return;
   const slot = button.closest('.admin-slot');
   const name = slot?.querySelector('.mt-2 strong')?.textContent?.trim() || 'this admin';
 
-  // Keep confirmation short and mobile-friendly.
   if (!window.confirm(`Delete ${name}?`)) return;
 
   button.disabled = true;
   button.textContent = 'Deleting…';
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+
   try {
     const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/rpc/superadmin_delete_barangay_admin`, {
       method: 'POST',
@@ -36,32 +47,28 @@ async function deleteAdmin(id, button) {
         Authorization: `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ target_admin_id: id })
+      body: JSON.stringify({ target_admin_id: id }),
+      signal: controller.signal
     });
 
     const data = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(data?.message || data?.error || data?.hint || 'Unable to delete admin account.');
+    if (!response.ok) throw new Error(data?.message || data?.error || data?.hint || `Delete failed (${response.status}).`);
 
-    // Remove the card immediately so the UI confirms the successful delete.
     slot?.remove();
-    const status = document.querySelector('#admin-status');
-    if (status) {
-      status.hidden = false;
-      status.dataset.state = 'ok';
-      status.textContent = `${name} deleted.`;
-    }
+    setStatus(`${name} deleted.`);
 
-    // Refresh data without a full page reload.
-    document.querySelector('#admin-manager-barangay')?.dispatchEvent(new Event('change'));
+    // Re-sync the selected barangay list without a full-page reload.
+    const manager = document.querySelector('#admin-manager-barangay');
+    if (manager?.value) manager.dispatchEvent(new Event('change'));
   } catch (error) {
+    const message = error?.name === 'AbortError'
+      ? 'Delete timed out. Please try again.'
+      : (error instanceof Error ? error.message : 'Delete failed.');
     button.disabled = false;
     button.textContent = 'Delete';
-    const status = document.querySelector('#admin-status');
-    if (status) {
-      status.hidden = false;
-      status.dataset.state = 'error';
-      status.textContent = error instanceof Error ? error.message : 'Delete failed.';
-    }
+    setStatus(message, true);
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
