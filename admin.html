@@ -6,30 +6,31 @@
   <meta name="description" content="Barangay-specific admin dashboard — BRGYWEBSAAS">
   <title>Barangay Admin Dashboard — BRGYWEBSAAS</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/app.css?v=20260831-admin9">
+  <link rel="stylesheet" href="css/app.css?v=20260831-admin10">
 </head>
 <body class="app-page">
-  <nav class="app-nav"><div class="container-fluid app-nav-inner"><a class="brand" href="admin.html"><span class="brand-mark">B</span><span>BRGYWEBSAAS</span></a><div class="nav-actions"><span class="badge text-bg-light border">BARANGAY ADMIN</span><button class="nav-link-btn active" type="button">Dashboard</button><a class="btn btn-sm btn-outline-primary" href="design-studio.html">Appearance</a><button id="logout" class="btn btn-outline-primary btn-sm" type="button">Sign out</button></div></div></nav>
-  <main class="container-fluid app-content"><section>
-    <div class="page-heading"><div><span class="eyebrow" id="barangay-eyebrow">BARANGAY ADMIN</span><h1 id="barangay-name">Barangay Dashboard</h1><p id="welcome" class="muted mb-0"></p></div></div>
-    <div class="row g-3 mt-1">
-      <div class="col-12 col-md-6 col-xl-3"><div class="stat-card"><span class="stat-label">Residents</span><strong id="residents-count">—</strong><span class="stat-hint">Barangay records</span></div></div>
-      <div class="col-12 col-md-6 col-xl-3"><div class="stat-card"><span class="stat-label">Households</span><strong id="households-count">—</strong><span class="stat-hint">Registered households</span></div></div>
-      <div class="col-12 col-md-6 col-xl-3"><div class="stat-card"><span class="stat-label">Requests</span><strong id="requests-count">—</strong><span class="stat-hint">Service requests</span></div></div>
-      <div class="col-12 col-md-6 col-xl-3"><div class="stat-card"><span class="stat-label">Status</span><strong>Active</strong><span id="assigned" class="stat-hint">Checking assignment…</span></div></div>
-    </div>
-    <div class="row g-3 mt-1"><div class="col-12 col-xl-8"><div class="surface-card"><div class="section-head"><div><h2 id="workspace-title">Barangay workspace</h2><p class="muted">Manage records and services for this Barangay only.</p></div></div>
-      <div class="row g-3 mt-1">
-        <div class="col-12 col-md-6 col-lg-4"><button class="quick-action w-100" type="button"><span>👥</span><div><strong>Residents</strong><small>Manage resident records</small></div></button></div>
-        <div class="col-12 col-md-6 col-lg-4"><button class="quick-action w-100" type="button"><span>🏠</span><div><strong>Households</strong><small>Manage household records</small></div></button></div>
-        <div class="col-12 col-md-6 col-lg-4"><button class="quick-action w-100" type="button"><span>📄</span><div><strong>Documents</strong><small>Barangay documents</small></div></button></div>
-        <div class="col-12 col-md-6 col-lg-4"><button class="quick-action w-100" type="button"><span>📝</span><div><strong>Requests</strong><small>Service requests</small></div></button></div>
-        <div class="col-12 col-md-6 col-lg-4"><button class="quick-action w-100" type="button"><span>📢</span><div><strong>Announcements</strong><small>Publish notices</small></div></button></div>
-        <div class="col-12 col-md-6 col-lg-4"><button class="quick-action w-100" type="button"><span>⚙</span><div><strong>Barangay Settings</strong><small>Allowed local settings</small></div></button></div>
-      </div></div></div>
-      <div class="col-12 col-xl-4"><div class="surface-card"><h2>Barangay Access</h2><p id="access-summary" class="muted">This dashboard is limited to the Barangay assigned to your account.</p><a id="public-link" class="btn btn-outline-primary" href="barangay.html" target="_blank" rel="noopener">View Public Barangay Site</a></div><div class="surface-card mt-3"><h2>System Administration</h2><p class="muted">Only the authorized Super Admin account can use the system-wide administration area.</p><a href="superadmin-login.html" class="btn btn-outline-secondary">Super Admin Sign in</a></div></div>
-    </div>
-  </section></main>
-  <footer class="app-footer"><a href="superadmin-login.html" class="muted" aria-label="Open Super Admin login">Super Admin</a><span id="footer-barangay">Barangay Management System</span></footer>
-  <script type="module" src="js/admin.js?v=20260831-admin9"></script>
+<nav class="app-nav"><div class="container-fluid app-nav-inner"><a class="brand" href="admin.html"><span class="brand-mark">B</span><span>BRGYWEBSAAS</span></a><div class="nav-actions"><span class="badge text-bg-light border">BARANGAY ADMIN</span><button class="nav-link-btn active" type="button">Dashboard</button><a class="btn btn-sm btn-outline-primary" href="design-studio.html">Appearance</a><button id="logout" class="btn btn-outline-primary btn-sm" type="button">Sign out</button></div></div></nav>
+<main class="container-fluid app-content"><section>
+<div class="page-heading"><div><span class="eyebrow" id="barangay-eyebrow">BARANGAY ADMIN</span><h1 id="barangay-name">Barangay Dashboard</h1><p id="welcome" class="muted mb-0"></p></div></div>
+<div class="row g-3 mt-1">
+<div class="col-12 col-md-6 col-xl-3"><div class="stat-card"><span class="stat-label">Residents</span><strong id="residents-count">—</strong><span class="stat-hint">Resident records</span></div></div>
+<div class="col-12 col-md-6 col-xl-3"><div class="stat-card"><span class="stat-label">Households</span><strong id="households-count">—</strong><span class="stat-hint">Registered households</span></div></div>
+<div class="col-12 col-md-6 col-xl-3"><div class="stat-card"><span class="stat-label">Requests</span><strong id="requests-count">—</strong><span class="stat-hint">Service requests</span></div></div>
+<div class="col-12 col-md-6 col-xl-3"><div class="stat-card"><span class="stat-label">Barangay Status</span><strong id="barangay-status">—</strong><span id="assigned" class="stat-hint">Checking assignment…</span></div></div>
+</div>
+<div class="row g-3 mt-1">
+<div class="col-12 col-xl-8"><div class="surface-card"><div class="section-head"><div><span class="eyebrow">LOCAL OPERATIONS</span><h2 id="workspace-title">Barangay workspace</h2><p class="muted">Manage services and records for your assigned Barangay.</p></div></div>
+<div class="row g-3 mt-1">
+<div class="col-12 col-md-6"><a class="quick-action w-100 text-decoration-none" href="barangay.html"><span>👥</span><div><strong>Residents</strong><small>View and manage resident records</small></div></a></div>
+<div class="col-12 col-md-6"><a class="quick-action w-100 text-decoration-none" href="barangay.html"><span>🏠</span><div><strong>Households</strong><small>View registered households</small></div></a></div>
+<div class="col-12 col-md-6"><a class="quick-action w-100 text-decoration-none" href="barangay.html"><span>📄</span><div><strong>Documents</strong><small>Process barangay documents</small></div></a></div>
+<div class="col-12 col-md-6"><a class="quick-action w-100 text-decoration-none" href="barangay.html"><span>📝</span><div><strong>Requests</strong><small>Review service requests</small></div></a></div>
+<div class="col-12 col-md-6"><a class="quick-action w-100 text-decoration-none" href="barangay.html"><span>📢</span><div><strong>Announcements</strong><small>Manage barangay notices</small></div></a></div>
+<div class="col-12 col-md-6"><a class="quick-action w-100 text-decoration-none" href="design-studio.html"><span>⚙</span><div><strong>Barangay Settings</strong><small>Manage allowed local settings</small></div></a></div>
+</div></div></div>
+<div class="col-12 col-xl-4"><div class="surface-card"><span class="eyebrow">ASSIGNMENT</span><h2 id="access-label">Barangay Admin</h2><p id="access-summary" class="muted">Your account can access only its assigned Barangay.</p><a id="public-link" class="btn btn-outline-primary" href="barangay.html" target="_blank" rel="noopener">View Public Barangay Site</a></div><div class="surface-card mt-3"><span class="eyebrow">SYSTEM ACCESS</span><h2>Super Admin</h2><p class="muted">System-wide administration is reserved for the authorized Super Admin account.</p><a href="index.html" class="btn btn-outline-secondary">Super Admin Login</a></div></div>
+</div>
+</section></main>
+<footer class="app-footer"><a href="index.html" class="muted" aria-label="Open Super Admin login">BRGYWEBSAAS</a><span id="footer-barangay">Barangay Management System</span></footer>
+<script type="module" src="js/admin.js?v=20260831-admin10"></script>
 </body></html>
