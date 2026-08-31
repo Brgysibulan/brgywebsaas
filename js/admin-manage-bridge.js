@@ -4,10 +4,13 @@ function installManageButtons(){
     if(!actions || actions.querySelector('[data-manage-admin]')) return;
     const name=article.querySelector('strong')?.textContent?.trim();
     if(!name) return;
+    const idSource=actions.querySelector('[data-domain],[data-edit],[data-toggle],[data-delete]');
+    const barangayId=idSource?.dataset.domain||idSource?.dataset.edit||idSource?.dataset.toggle||idSource?.dataset.delete||'';
     const button=document.createElement('button');
     button.type='button';
     button.className='btn btn-sm btn-outline-primary';
     button.dataset.manageAdmin='true';
+    button.dataset.barangayId=barangayId;
     button.dataset.barangayName=name;
     button.textContent='Manage Admin';
     actions.insertBefore(button,actions.firstChild);
@@ -24,31 +27,36 @@ function showAdminSection(){
   document.querySelector('#admins-section')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+function selectBarangayById(id){
+  const select=document.querySelector('#admin-manager-barangay');
+  if(!select||!id) return false;
+  const option=[...select.options].find(o=>o.value===id);
+  if(!option) return false;
+  select.value=option.value;
+  select.dispatchEvent(new Event('change',{bubbles:true}));
+  return true;
+}
+
 function selectBarangayByName(name){
   const select=document.querySelector('#admin-manager-barangay');
   if(!select) return false;
   const wanted=String(name||'').trim().toLowerCase();
   const option=[...select.options].find(o=>o.value && o.textContent.trim().toLowerCase()===wanted);
   if(!option) return false;
-  if(select.value!==option.value){
-    select.value=option.value;
-    select.dispatchEvent(new Event('change',{bubbles:true}));
-  }else{
-    select.dispatchEvent(new Event('change',{bubbles:true}));
-  }
+  select.value=option.value;
+  select.dispatchEvent(new Event('change',{bubbles:true}));
   return true;
 }
 
 function openManageAdmin(button){
+  const id=button.dataset.barangayId||'';
   const name=button.dataset.barangayName||'';
   showAdminSection();
-  if(selectBarangayByName(name)) return;
+  if(selectBarangayById(id)) return;
 
-  // The Barangay Management list and Admin selector are populated asynchronously.
-  // Retry briefly instead of failing silently when the user clicks early.
   let attempts=0;
   const retry=()=>{
-    if(selectBarangayByName(name)) return;
+    if(selectBarangayById(id)||selectBarangayByName(name)) return;
     attempts+=1;
     if(attempts<20) setTimeout(retry,100);
   };
