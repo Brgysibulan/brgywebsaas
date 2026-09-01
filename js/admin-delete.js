@@ -30,17 +30,15 @@ async function deleteAdmin(id, button) {
   if (!id) return;
   const slot = button.closest('.admin-slot');
   const name = slot?.querySelector('.mt-2 strong')?.textContent?.trim() || 'this admin';
-
   if (!window.confirm(`Delete ${name}?`)) return;
 
   button.disabled = true;
   button.textContent = 'Deleting…';
-
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
 
   try {
-    const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/rpc/superadmin_delete_barangay_admin`, {
+    const response = await fetch(`${SUPABASE_CONFIG.url}/functions/v1/delete-barangay-admin`, {
       method: 'POST',
       headers: {
         apikey: SUPABASE_CONFIG.publishableKey,
@@ -50,20 +48,15 @@ async function deleteAdmin(id, button) {
       body: JSON.stringify({ target_admin_id: id }),
       signal: controller.signal
     });
-
     const data = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(data?.message || data?.error || data?.hint || `Delete failed (${response.status}).`);
+    if (!response.ok) throw new Error(data?.message || data?.error || `Delete failed (${response.status}).`);
 
     slot?.remove();
     setStatus(`${name} deleted.`);
-
-    // Re-sync the selected barangay list without a full-page reload.
     const manager = document.querySelector('#admin-manager-barangay');
     if (manager?.value) manager.dispatchEvent(new Event('change'));
   } catch (error) {
-    const message = error?.name === 'AbortError'
-      ? 'Delete timed out. Please try again.'
-      : (error instanceof Error ? error.message : 'Delete failed.');
+    const message = error?.name === 'AbortError' ? 'Delete timed out. Please try again.' : (error instanceof Error ? error.message : 'Delete failed.');
     button.disabled = false;
     button.textContent = 'Delete';
     setStatus(message, true);
