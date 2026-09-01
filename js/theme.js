@@ -1,3 +1,4 @@
+if(location.pathname.endsWith('superadmin.html')){const originalFetch=window.fetch.bind(window);window.fetch=(input,init)=>{const u=typeof input==='string'?input:input?.url||'';if(u.includes('/rest/v1/rpc/superadmin_system_metrics'))return originalFetch(u.replace('/rest/v1/rpc/superadmin_system_metrics','/functions/v1/superadmin-system-metrics'),init);return originalFetch(input,init)}}
 const THEMES={ocean:{label:'Ocean Blue',primary:'#0f6ea8',secondary:'#0f766e',accent:'#0284c7',bg:'#f1f5f9',surface:'#fff',text:'#0f172a',muted:'#64748b',border:'#dbe4ee',nav:'#fff',navText:'#0f172a'}};
 const KEY='brgywebsaas_theme';
 const saved=JSON.parse(localStorage.getItem(KEY)||'null');
